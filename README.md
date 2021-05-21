@@ -1,4 +1,4 @@
-# <div ><img src="https://user-images.githubusercontent.com/765387/119150548-d9400900-ba4e-11eb-908a-26abef802738.png" alt="drawing" width="45"/>  Mangrove-Protocol </div>
+# <div ><img src="https://user-images.githubusercontent.com/765387/119150548-d9400900-ba4e-11eb-908a-26abef802738.png" alt="drawing" width="45"/>  Mangrove-Protocol <img src="https://user-images.githubusercontent.com/765387/119150548-d9400900-ba4e-11eb-908a-26abef802738.png" alt="drawing" width="45"/> </div>
 
 Mangrove-Protocol is a platform protocol for incentivized collaborative applications of the secret network.
 The whole protocol is composed from smaller building blocks, is governed by a DAO and is extensible and upgradeable by nature. 
