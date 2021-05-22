@@ -77,7 +77,7 @@ const main = async () => {
     const stakeBalance = await client.queryContractSmart(stake, { balance: { address: accAddress, key: 'manicmonday' } })
     console.log('Stake Balance:', stakeBalance)
 
-    console.log('Total SEFI',Number.parseInt(stakeBalance.balance.amount)+Number.parseInt(sefiBalance.balance.amount))
+    console.log('Total SEFI',Number.parseInt(stakeBalance.balance.amount)+Number.parseInt(sefiBalance.balance.amount)-Math.round(Number.parseInt(sefiBalance.balance.amount) / 10))
 
 
     // ANALYSIS
