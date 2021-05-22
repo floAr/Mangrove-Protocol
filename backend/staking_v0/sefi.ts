@@ -1,6 +1,3 @@
-
-
-
 const {
     EnigmaUtils, SigningCosmWasmClient, Secp256k1Pen, pubkeyToAddress, encodeSecp256k1Pubkey,
 } = require('secretjs');
@@ -29,12 +26,13 @@ require('dotenv').config();
 
 
 const main = async () => {
-    
 
-    const sefi =  process.env.SEFI_CONTRACT; // sefi-9
-    const stake =  process.env.STAKE_CONTRACT;// sefi-stake-12
+
+    const sefi = 'secret12q2c5s5we5zn9pq43l0rlsygtql6646my0sqfm'; // sefi-9
+    const stake = 'secret1fvkjzcqqc8nj2utttxle6muer6ncpuavfk4j9p';// sefi-stake-12
     const mnemonic = process.env.MNEMONIC;
     const httpUrl = process.env.SECRET_REST_URL;
+
     const signingPen = await Secp256k1Pen.fromMnemonic(mnemonic)
         .catch((err) => { throw new Error(`Could not get signing pen: ${err}`); });
     const pubkey = encodeSecp256k1Pubkey(signingPen.pubkey);
@@ -68,34 +66,39 @@ const main = async () => {
 
     const sefiBalance = await client.queryContractSmart(sefi, { balance: { address: accAddress, key: 'manicmonday' } })
     console.log('Sefi:', sefiBalance.balance.amount)
+
+
     // sending sefi from sefi contract to stake
     // todo : replace fixed amount with 100%: sefiBalance.balance.amount
-    // const staketxt = await client.execute(sefi, { send: { amount: "1000", recipient: stake, msg: 'eyJkZXBvc2l0Ijp7fX0K' } }) // eyJkZXBvc2l0Ijp7fX0K = {"deposit":{}}
-    // console.log(JSON.parse(new TextDecoder().decode(staketxt.data)))
+    const staketxt = await client.execute(sefi, { send: { amount: (Math.round(Number.parseInt(sefiBalance.balance.amount) / 10)).toString(), recipient: stake, msg: 'eyJkZXBvc2l0Ijp7fX0K' } }) // eyJkZXBvc2l0Ijp7fX0K = {"deposit":{}}
+    console.log('Send for staking', JSON.parse(new TextDecoder().decode(staketxt.data)))
 
-
-
+    // query the current stake
     const stakeBalance = await client.queryContractSmart(stake, { balance: { address: accAddress, key: 'manicmonday' } })
     console.log('Stake Balance:', stakeBalance)
 
+
+    // ANALYSIS
     // Query chain height
     const height = await client.getHeight()
         .catch((err) => { throw new Error(`Could not get block height: ${err}`); });
-    console.log(height)
+    // console.log(height)
 
     const stakeRewards = await client.queryContractSmart(stake, { rewards: { address: accAddress, key: 'manicmonday', height: height } })
     const stakeRewardsIn1000 = await client.queryContractSmart(stake, { rewards: { address: accAddress, key: 'manicmonday', height: height + 1000 } })
     const staked = Number(stakeBalance.balance.amount)
     const stakeRewardsIn1000Nr = stakeRewardsIn1000.rewards.rewards
 
-    console.log(staked, stakeRewardsIn1000Nr, stakeRewardsIn1000Nr / staked)
+    console.log('staked now', staked, 'reward in 1000 blocks', stakeRewardsIn1000Nr, 'reward per staked token in 1000 blocks', stakeRewardsIn1000Nr / staked)
     // 
     console.log('Stake Rewards:', stakeRewards)
 
     // claim 
+    if (stakeRewards.rewards.rewards !== '0') {
 
-    const claimTxt = await client.execute(stake, { redeem: { amount: "0" } }) // eyJkZXBvc2l0Ijp7fX0K = {"deposit":{}}
-    console.log(claimTxt)
+        const claimTxt = await client.execute(stake, { redeem: { amount: "0" } }) // eyJkZXBvc2l0Ijp7fX0K = {"deposit":{}}
+        console.log(claimTxt)
+    }
 
     // {
     //     "redeem": {
