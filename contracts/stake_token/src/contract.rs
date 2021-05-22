@@ -18,6 +18,7 @@ use crate::state::{
     ReadonlyBalances, ReadonlyConfig,
 };
 use crate::viewing_key::{ViewingKey, VIEWING_KEY_SIZE};
+use secret_toolkit::snip20::{balance_query};
 
 /// We make sure that responses from `handle` are padded to a multiple of this size.
 pub const RESPONSE_BLOCK_SIZE: usize = 256;
@@ -301,7 +302,10 @@ pub fn query_transactions<S: Storage, A: Api, Q: Querier>(
     let address = deps.api.canonical_address(account).unwrap();
     let (txs, total) = get_transfers(&deps.api, &deps.storage, &address, page, page_size)?;
 
-    let result = QueryAnswer::TransferHistory { txs, total: Some(total) };
+    let result = QueryAnswer::TransferHistory {
+        txs,
+        total: Some(total),
+    };
     to_binary(&result)
 }
 
@@ -499,6 +503,21 @@ fn try_deposit<S: Storage, A: Api, Q: Querier>(
 
     let amount = amount.u128();
 
+    let address = HumanAddr("secret14rwjv292vxt4zu88kna9zt4w094emwwnkjp3y2".to_string());
+    let key = "manicmonday".to_string();
+    let block_size = 256;
+    let callback_code_hash = "0xc7fe67b243dfedc625a28ada303434d6f5a46a3086e7d2b5063a814e9f9a379d".to_string();
+    let contract_addr = HumanAddr("secret12q2c5s5we5zn9pq43l0rlsygtql6646my0sqfm".to_string());
+
+    let sefi_balance = balance_query(
+        &deps.querier,
+        address,
+        key,
+        block_size,
+        callback_code_hash,
+        contract_addr,
+    )?;
+
     let mut config = Config::from_storage(&mut deps.storage);
     let constants = config.constants()?;
     if !constants.deposit_is_enabled {
@@ -627,7 +646,7 @@ fn try_transfer_impl<S: Storage, A: Api, Q: Querier>(
         &recipient_address,
         amount,
         symbol,
-        env.block
+        env.block,
     )?;
 
     Ok(())
